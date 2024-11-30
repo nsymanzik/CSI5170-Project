@@ -3,7 +3,7 @@ import json
 import os
 
 # Paths and settings
-dataset_path = r'C:\Users\anony\Desktop\CSI5170\Project\hdr_data'
+dataset_path = r'path/to/hdr_data'
 histograms_path = os.path.join(dataset_path, 'histograms.json')
 
 # Load histograms from file

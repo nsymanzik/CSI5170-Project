@@ -6,7 +6,7 @@ import random
 import matplotlib.pyplot as plt
 
 # Paths and settings
-dataset_path = r'C:\Users\anony\Desktop\CSI5170\Project\hdr_data'
+dataset_path = r'path/to/hdr_data'
 labels_path = os.path.join(dataset_path, 'labels.json')
 
 # Load labels from file
@@ -16,7 +16,7 @@ with open(labels_path, 'r') as f:
 # Function to select scene
 selected_scene = input("Enter the name of the scene to use (or press Enter to select a random scene): ")
 if not selected_scene:
-    selected_scene = 'scene_0016' # random.choice(labels)['scene']
+    selected_scene = random.choice(labels)['scene']
     print(f"Selecting random scene: {selected_scene}")
 
 # Find the scene label
@@ -25,29 +25,22 @@ if not scene_label:
     print(f"Scene '{selected_scene}' not found.")
     exit(1)
 
-# Get the best exposure times
-# best_exposure_times = [et for et in scene_label['best_exposure_times'] if et is not None]
-best_exposure_times = [375, 3000, 48000]
+# Get the best exposure times from labels
+best_exposure_times = [et for et in scene_label['best_exposure_times'] if et is not None]
 
 # Get the image paths
 scene_path = os.path.join(dataset_path, selected_scene)
 images = [os.path.join(scene_path, img) for img in os.listdir(scene_path) if img.endswith('.png')]
-
-# Store images in a dictionary by their exposure times to improve lookup efficiency
 images_dict = {
     float(os.path.basename(img_path).replace('.png', '')): img_path for img_path in images
 }
 
-# Sort the exposure times to ensure images are aligned correctly
+# Select and load images
 best_exposure_times.sort()
-
-# Select images based on sorted exposure times
 selected_images = [images_dict[exposure_time] for exposure_time in best_exposure_times if exposure_time in images_dict]
-
-# Load images
 imgs = [cv2.imread(img_path) for img_path in selected_images]
 
-# Plot the component images, histograms, and HDR result dynamically
+# Plot the component images, histograms, and HDR result
 num_images = len(imgs)
 fig, axes = plt.subplots(3, max(num_images, 2), figsize=(5 * max(num_images, 2), 15))
 fig.suptitle(f"HDR Merging for Scene: {selected_scene}", fontsize=16)
@@ -85,12 +78,9 @@ if len(imgs) >= 2:
 # If there is only one image, display the image
 elif len(imgs) == 1:
     img = imgs[0]
-
-    # Display the image
     axes[2, 0].imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
     axes[2, 0].set_title(f"Single Image - Exposure Time: {best_exposure_times[0]}")
     axes[2, 0].axis('off')
 
-# Adjust layout to ensure all titles and labels are visible
 plt.tight_layout(rect=[0, 0, 1, 0.95], h_pad=2.0)
 plt.show()
